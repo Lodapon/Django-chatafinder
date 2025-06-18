@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ไพ่ทาโรต์</title>
+    <style>
+        body { font-family: sans-serif; margin: 30px auto; max-width: 600px; }
+        .message { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .user { background: #e0f7fa; text-align: right; }
+        .bot { background: #fce4ec; }
+    </style>
+</head>
+<body>
+    <h2>ไพ่ทาโรต์: ที่ปรึกษาด้านงานและโชคชะตา</h2>
+
+    <div id="chat-box">
+        {% if chat_history %}
+            {% for msg in chat_history %}
+                <div class="message {{ msg.sender }}">
+                    <p>{{ msg.text }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="user_input" style="width: 80%;" required>
+        <button type="submit">ส่ง</button>
+    </form>
+
+    <p><a href="{% url 'homepage' %}">⬅️ กลับหน้าหลัก</a></p>
+</body>
+</html>
