@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
+{% load static %}
+{% load filters %}
 <head>
     <meta charset="UTF-8">
     <title>ไพ่ทาโรต์</title>
@@ -8,10 +10,48 @@
         .message { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
         .user { background: #e0f7fa; text-align: right; }
         .bot { background: #fce4ec; }
+        .card-list {
+		    background-color: #f9f9f9;
+		    border-radius: 10px;
+		    padding: 15px;
+		    margin-bottom: 20px;
+		    border: 1px solid #ccc;
+		}
+
+		.card-grid {
+		    display: grid;
+		    grid-template-columns: repeat(5, 1fr); /* 5 cards per row */
+		    gap: 12px;
+		    justify-items: center;
+		}
+
+		.card-item {
+		    text-align: center;
+		    width: 80px;
+		}
+
+		.card-item img {
+		    border-radius: 5px;
+		    border: 1px solid #aaa;
+		}
     </style>
 </head>
 <body>
-    <h2>ไพ่ทาโรต์: ที่ปรึกษาด้านงานและโชคชะตา</h2>
+    <h2>ไพ่ทาโรต์: ที่ปรึกษาโชคชะตาส่วนตัว</h2>
+
+    {% if request.session.tarot_cards %}
+    <div class="card-list">
+	        <h3>🃏 ไพ่ที่ถูกจับ</h3>
+	        <div class="card-grid">
+	            {% for card in request.session.tarot_cards %}
+	                <div class="card-item">
+	                    <img src="{% static 'tarot_cards/' %}{{ card|card_image_filename }}" alt="{{ card }}" width="80">
+	                    <small>{{ card }}</small>
+	                </div>
+	            {% endfor %}
+	        </div>
+	    </div>
+	{% endif %}
 
     <div id="chat-box">
         {% if chat_history %}
