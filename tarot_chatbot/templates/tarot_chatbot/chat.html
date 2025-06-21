@@ -29,6 +29,12 @@
         <button type="submit">ส่ง</button>
     </form>
 
+    <form method="post" style="margin-top: 10px;">
+	    {% csrf_token %}
+	    <input type="hidden" name="reset" value="true">
+	    <button type="submit">เริ่มใหม่ 🔄</button>
+	</form>
+
     <p><a href="{% url 'homepage' %}">⬅️ กลับหน้าหลัก</a></p>
 </body>
 </html>
