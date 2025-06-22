@@ -6,35 +6,107 @@
     <meta charset="UTF-8">
     <title>ไพ่ทาโรต์</title>
     <style>
-        body { font-family: sans-serif; margin: 30px auto; max-width: 600px; }
-        .message { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .user { background: #e0f7fa; text-align: right; }
-        .bot { background: #fce4ec; }
-        .card-list {
-		    background-color: #f9f9f9;
-		    border-radius: 10px;
-		    padding: 15px;
-		    margin-bottom: 20px;
-		    border: 1px solid #ccc;
-		}
+	    body {
+	        font-family: sans-serif;
+	        margin: 20px auto;
+	        max-width: 600px;
+	        padding: 0 10px;
+	    }
 
-		.card-grid {
+	    .message {
+	        padding: 10px;
+	        margin-bottom: 10px;
+	        border-radius: 5px;
+	        word-wrap: break-word;
+	    }
+
+	    .user {
+	        background: #e0f7fa;
+	        text-align: right;
+	    }
+
+	    .bot {
+	        background: #fce4ec;
+	    }
+
+	    .card-list {
+	        background-color: #f9f9f9;
+	        border-radius: 10px;
+	        padding: 15px;
+	        margin-bottom: 20px;
+	        border: 1px solid #ccc;
+	    }
+
+	    .card-grid {
 		    display: grid;
-		    grid-template-columns: repeat(5, 1fr); /* 5 cards per row */
+		    grid-template-columns: repeat(5, 1fr); /* fixed 5 per row */
 		    gap: 12px;
 		    justify-items: center;
 		}
 
-		.card-item {
-		    text-align: center;
-		    width: 80px;
+	    .card-item {
+	        text-align: center;
+	        max-width: 80px;
+	    }
+
+	    .card-item img {
+	        border-radius: 5px;
+	        border: 1px solid #aaa;
+	        width: 100%;
+	        height: auto;
+	    }
+
+	    form.chat-form {
+		    margin-top: 10px;
+		    display: flex;
+		    gap: 8px;
 		}
 
-		.card-item img {
-		    border-radius: 5px;
-		    border: 1px solid #aaa;
+		input[name="user_input"] {
+		    flex: 1;
+		    padding: 10px;
+		    font-size: 16px;
 		}
-    </style>
+
+		button[type="submit"] {
+		    padding: 10px 16px;
+		    font-size: 16px;
+		    background-color: #673ab7;
+		    color: white;
+		    border: none;
+		    border-radius: 5px;
+		    cursor: pointer;
+		    white-space: nowrap;
+		}
+
+		button[type="submit"]:hover {
+		    background-color: #5e35b1;
+		}
+
+	    button:hover {
+	        background-color: #5e35b1;
+	    }
+
+	    a {
+	        display: inline-block;
+	        margin-top: 20px;
+	        text-decoration: none;
+	        color: #333;
+	    }
+
+	    #loading {
+		    margin: 10px 0;
+		    color: #888;
+		    text-align: center;
+		}
+
+		#chat-box {
+		    max-height: 60vh;
+		    overflow-y: auto;
+		    scroll-behavior: smooth;
+		    padding-right: 10px;
+		}
+	</style>
 </head>
 
 <body>
@@ -68,11 +140,11 @@
 	    ✨ กำลังพิมพ์คำตอบ...
 	</div>
 
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="user_input" style="width: 80%;" required>
-        <button type="submit">ส่ง</button>
-    </form>
+    <form method="post" class="chat-form">
+	    {% csrf_token %}
+	    <input type="text" name="user_input" required>
+	    <button type="submit">ส่ง</button>
+	</form>
 
     <form method="post" style="margin-top: 10px;">
 	    {% csrf_token %}
@@ -87,10 +159,19 @@
 	    const loading = document.getElementById("loading");
 
 	    form.addEventListener("submit", function (e) {
-	        e.preventDefault();  // stop immediate submit
-	        loading.style.display = "block";  // show loading
-	        setTimeout(() => form.submit(), 100);  // submit after short delay
+	        e.preventDefault();
+	        loading.style.display = "block";
+	        setTimeout(() => form.submit(), 100);
 	    });
+
+	    window.onload = function () {
+	        const chatBox = document.getElementById("chat-box");
+	        if (chatBox) {
+	            chatBox.scrollTop = chatBox.scrollHeight;
+	        }
+	        // Scroll the entire page to the bottom
+	        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+	    };
 	</script>
 
 </body>

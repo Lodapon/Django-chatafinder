@@ -108,15 +108,6 @@ def tarot_chat(request):
 
 
 def ask_chatgpt(prompt):
-    # response = client.chat.completions.create(
-    #     model="gpt-4",  # or "gpt-3.5-turbo" if you're using the cheaper model
-    #     messages=[
-    #         # {"role": "system", "content": "คุณเป็นนักพยากรณ์ไพ่ทาโรต์ที่อ่อนโยนและลึกซึ้ง ตอบด้วยภาษาไทยที่เป็นธรรมชาติ เป็นกันเอง ใช้ภาษาที่สื่อถึงความเข้าใจและให้คำแนะนำอย่างตรงไปตรงมา"},
-    #         {"role": "user", "content": prompt}
-    #     ],
-    #     temperature=0.8,
-    # )
-
     response = client.chat.completions.create(
         model="gpt-4",  # or "gpt-3.5-turbo"
         messages=[
@@ -124,6 +115,6 @@ def ask_chatgpt(prompt):
             {"role": "user", "content": prompt}
         ],
         temperature=0.9,
-        max_tokens=1200
+        # max_tokens=1200
     )
     return response.choices[0].message.content.strip()
