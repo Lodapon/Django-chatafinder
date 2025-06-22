@@ -36,6 +36,7 @@
 		}
     </style>
 </head>
+
 <body>
     <h2>ไพ่ทาโรต์: ที่ปรึกษาโชคชะตาส่วนตัว</h2>
 
@@ -63,6 +64,10 @@
         {% endif %}
     </div>
 
+    <div id="loading" style="display:none; margin: 10px 0; color: #888;">
+	    ✨ กำลังพิมพ์คำตอบ...
+	</div>
+
     <form method="post">
         {% csrf_token %}
         <input type="text" name="user_input" style="width: 80%;" required>
@@ -76,5 +81,17 @@
 	</form>
 
     <p><a href="{% url 'homepage' %}">⬅️ กลับหน้าหลัก</a></p>
+
+    <script>
+	    const form = document.querySelector("form");
+	    const loading = document.getElementById("loading");
+
+	    form.addEventListener("submit", function (e) {
+	        e.preventDefault();  // stop immediate submit
+	        loading.style.display = "block";  // show loading
+	        setTimeout(() => form.submit(), 100);  // submit after short delay
+	    });
+	</script>
+
 </body>
 </html>

@@ -40,6 +40,14 @@ TAROT_CARDS = [
 def homepage(request):
     return render(request, 'tarot_chatbot/homepage.html')
 
+def extract_cards_from_text(text):
+    """Return a list of card names that appear in the given text."""
+    matches = []
+    for card in TAROT_CARDS:
+        if card in text:
+            matches.append(card)
+    return matches
+
 
 @csrf_exempt
 def tarot_chat(request):
