@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="th">
+{% load static %}
+{% load filters %}
+<head>
+    <meta charset="UTF-8">
+    <title>เลือกไพ่ 10 ใบ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+
+        .card-item {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .card-item img {
+            border: 2px solid transparent;
+            border-radius: 5px;
+            width: 80px;
+            height: auto;
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        input[type="checkbox"]:checked + img {
+            border-color: #673ab7;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 16px;
+            font-size: 16px;
+            background-color: #673ab7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #5e35b1;
+        }
+
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🃏 เลือกไพ่ 10 ใบที่คุณรู้สึกเชื่อมโยง</h2>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="card-grid">
+            {% for card in card_pool %}
+                <label class="card-item">
+                    <input type="checkbox" name="selected_cards" value="{{ card }}"
+                        {% if card in selected %}checked{% endif %}
+                        onclick="limitSelection(this)">
+                    <img src="{% static 'tarot_cards/card_back.jpg' %}" alt="{{ card }}">
+                    <!-- <small>{{ card }}</small> -->
+                </label>
+            {% endfor %}
+        </div>
+        <button type="submit">ยืนยันไพ่ที่เลือก</button>
+    </form>
+
+    <script>
+        function limitSelection(checkbox) {
+            const checked = document.querySelectorAll('input[name="selected_cards"]:checked');
+            if (checked.length > 10) {
+                checkbox.checked = false;
+                alert("คุณสามารถเลือกได้สูงสุด 10 ใบเท่านั้น");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -126,6 +126,20 @@
 	    </div>
 	{% endif %}
 
+	{% if request.session.extra_tarot_cards %}
+	<div class="card-list">
+	    <h3>🔮 ไพ่เพิ่มเติม</h3>
+	    <div class="card-grid">
+	        {% for card in request.session.extra_tarot_cards %}
+	            <div class="card-item">
+	                <img src="{% static 'tarot_cards/' %}{{ card|card_image_filename }}" alt="{{ card }}" width="80">
+	                <small>{{ card }}</small>
+	            </div>
+	        {% endfor %}
+	    </div>
+	</div>
+	{% endif %}
+
     <div id="chat-box">
         {% if chat_history %}
             {% for msg in chat_history %}
@@ -137,7 +151,7 @@
     </div>
 
     <div id="loading" style="display:none; margin: 10px 0; color: #888;">
-	    ✨ กำลังพิมพ์คำตอบ...
+	    ✨ กำลังอ่านความหมายจากไพ่ของคุณ...
 	</div>
 
     <form method="post" class="chat-form">

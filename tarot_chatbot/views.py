@@ -40,6 +40,23 @@ TAROT_CARDS = [
 def homepage(request):
     return render(request, 'tarot_chatbot/homepage.html')
 
+@csrf_exempt
+def select_cards(request):
+    if request.method == 'POST':
+        selected = request.POST.getlist('selected_cards')
+        if len(selected) == 10:
+            request.session['tarot_cards'] = selected
+            return redirect('tarot_chat')  # go to chat after selection
+        else:
+            error = "กรุณาเลือกไพ่ให้ครบ 10 ใบ"
+            return render(request, 'tarot_chatbot/select_cards.html', {
+                'card_pool': TAROT_CARDS,
+                'error': error,
+                'selected': selected,
+            })
+
+    return render(request, 'tarot_chatbot/select_cards.html', {'card_pool': TAROT_CARDS})
+
 def extract_cards_from_text(text):
     """Return a list of card names that appear in the given text."""
     matches = []
@@ -51,10 +68,14 @@ def extract_cards_from_text(text):
 
 @csrf_exempt
 def tarot_chat(request):
+
+    if 'tarot_cards' not in request.session:
+        return redirect('select_cards')
+
     if 'chat_history' not in request.session:
         request.session['chat_history'] = []
 
-    chat = request.session['chat_history']
+    chat = request.session['chat_history'].copy()
 
     if request.method == 'POST':
         if request.POST.get('reset') == 'true':
@@ -67,17 +88,24 @@ def tarot_chat(request):
             chat.append({'sender': 'user', 'text': user_input})
 
             # ✅ DRAW ONLY IF NOT YET DRAWN
+            # if 'tarot_cards' not in request.session:
+            #     drawn_cards = random.sample(TAROT_CARDS, 10)
+            #     request.session['tarot_cards'] = drawn_cards
             if 'tarot_cards' not in request.session:
-                drawn_cards = random.sample(TAROT_CARDS, 10)
-                request.session['tarot_cards'] = drawn_cards
+                return render(request, 'tarot_chatbot/select_cards.html', {'card_pool': TAROT_CARDS})
             else:
                 drawn_cards = request.session['tarot_cards']
+
+            # Initialize or retrieve extra drawn cards
+            if 'extra_tarot_cards' not in request.session:
+                request.session['extra_tarot_cards'] = []
+            extra_cards = request.session['extra_tarot_cards']
 
             # ✅ FORMAT TEXT
             card_text = ", ".join(drawn_cards)
 
-            # ✅ BUILD GPT PROMPT
-            prompt = f"""คุณคือนักพยากรณ์ไพ่ทาโรต์ผู้เชี่ยวชาญด้านอาชีพ โชคชะตา และจิตวิทยา
+            # ✅ SYSTEM INSTRUCTION (your long prompt as one system message) (Prompt ตอบดี)
+            system_prompt = f"""คุณคือนักพยากรณ์ไพ่ทาโรต์ผู้เชี่ยวชาญด้านอาชีพ โชคชะตา และจิตวิทยา
 
             คุณกำลังสนทนากับผู้ใช้เพื่อช่วยให้คำปรึกษาในเรื่องอะไรก็ตามที่ถูกถาม
 
@@ -91,14 +119,46 @@ def tarot_chat(request):
 
             **อย่าจับไพ่ทันที** — จงพิจารณาความเหมาะสมของคำถามก่อน และตอบกลับอย่างเป็นธรรมชาติแบบนักพยากรณ์ที่อบอุ่นและรอบคอบ
 
-            ต่อไปนี้คือข้อความจากผู้ใช้:
-            \"{user_input}\"
-
-            บันทึกไพ่ 10 ใบที่จับแล้ว: {card_text}
-            (อย่าเปลี่ยนไพ่ชุดนี้ในการสนทนาอื่น ให้ใช้ชุดนี้ตลอดเว้นแต่คุณขอไพ่เพิ่มเอง)
+            ไพ่ที่จับไว้: {card_text}
+            (ใช้ไพ่ชุดนี้ตลอดการสนทนา ยกเว้นคุณขอไพ่เพิ่มเอง)
+            ไพ่เพิ่มเติม (ถ้ามี): {', '.join(extra_cards) if extra_cards else 'ไม่มี'}
             """
 
-            reply = ask_chatgpt(prompt)
+            # Prompt ตอบเร็ว
+            # system_prompt = f"""
+            # คุณคือนักพยากรณ์ไพ่ทาโรต์ที่อบอุ่นและเชี่ยวชาญด้านอาชีพ โชคชะตา และจิตวิทยา
+
+            # คุณกำลังสนทนากับผู้ใช้เพื่อให้คำแนะนำจากไพ่ 10 ใบที่จับไว้:
+            # {card_text}
+
+            # (ใช้ไพ่ชุดนี้ตลอดการสนทนา ยกเว้นขอไพ่เพิ่ม)
+            # ไพ่เพิ่มเติม: {', '.join(extra_cards) if extra_cards else 'ไม่มี'}
+            # """
+
+            # ✅ BUILD MESSAGES LIST (limit to last 30 interactions to save tokens)
+            messages = [{"role": "system", "content": system_prompt}]
+            max_history = 5
+            for entry in chat[-max_history:]:
+                role = "user" if entry["sender"] == "user" else "assistant"
+                messages.append({"role": role, "content": entry["text"]})
+
+            # ✅ ADD LATEST USER INPUT
+            messages.append({"role": "user", "content": user_input})
+
+            # ✅ CALL GPT WITH MESSAGES
+            reply = ask_chatgpt(messages)
+
+            # Check if GPT requested 3 more cards
+            if any(keyword in reply.lower() for keyword in ["จับไพ่เพิ่ม", "ไพ่เพิ่มอีก 3", "เพิ่มอีก 3 ใบ"]) and len(extra_cards) == 0:
+                # Filter remaining cards
+                remaining = list(set(TAROT_CARDS) - set(drawn_cards) - set(extra_cards))
+                new_cards = random.sample(remaining, 3)
+                extra_cards.extend(new_cards)
+                request.session['extra_tarot_cards'] = extra_cards
+
+                # Append extra card info to GPT reply
+                reply += f"\n\n🃏 ไพ่เพิ่มเติมที่จับได้: {', '.join(new_cards)}"
+
             chat.append({'sender': 'bot', 'text': reply})
             request.session['chat_history'] = chat
 
@@ -107,14 +167,10 @@ def tarot_chat(request):
     })
 
 
-def ask_chatgpt(prompt):
+def ask_chatgpt(messages):
     response = client.chat.completions.create(
-        model="gpt-4",  # or "gpt-3.5-turbo"
-        messages=[
-            {"role": "system", "content": "คุณเป็นนักพยากรณ์ไพ่ทาโรต์ที่ให้คำปรึกษาเรื่องงาน โชคชะตา และจิตวิทยา"},
-            {"role": "user", "content": prompt}
-        ],
+        model="gpt-4",
+        messages=messages,
         temperature=0.9,
-        # max_tokens=1200
     )
     return response.choices[0].message.content.strip()
