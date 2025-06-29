@@ -3,10 +3,14 @@ services:
     name: chatafinder
     env: python
     plan: free
-    buildCommand: "./render_build.sh"
-    startCommand: "gunicorn chatafinder_core.wsgi:application"
+    buildCommand: |
+      pip install -r requirements.txt
+      ./render_build.sh
+    startCommand: gunicorn chatafinder_core.wsgi:application
     envVars:
       - key: DEBUG
         value: False
       - key: OPENAI_API_KEY
-        sync: false  # Set manually in Render dashboard
+        sync: false
+      - key: DATABASE_URL
+        sync: false  # set manually in dashboard from your Render Postgres
