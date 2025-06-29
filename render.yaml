@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: chatafinder
+    env: python
+    plan: free
+    buildCommand: "./render_build.sh"
+    startCommand: "gunicorn chatafinder_core.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually in Render dashboard

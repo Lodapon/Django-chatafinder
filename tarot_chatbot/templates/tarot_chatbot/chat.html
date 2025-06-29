@@ -119,7 +119,7 @@
 	            {% for card in request.session.tarot_cards %}
 	                <div class="card-item">
 	                    <img src="{% static 'tarot_cards/' %}{{ card|card_image_filename }}" alt="{{ card }}" width="80">
-	                    <small>{{ card }}</small>
+	                    <small>{{ card }}</small>	                  
 	                </div>
 	            {% endfor %}
 	        </div>
