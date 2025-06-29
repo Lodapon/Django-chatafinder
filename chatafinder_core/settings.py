@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tarot_chatbot',
+    'daily_cards',
 ]
 
 MIDDLEWARE = [

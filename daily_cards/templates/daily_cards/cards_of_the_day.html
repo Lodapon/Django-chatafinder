@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+{% load filters %}
+<head>
+    <title>Cards of the Day</title>
+</head>
+<body>
+    <h1>🃏 Cards of the Day ({{ today }})</h1>
+
+    <div style="display: flex; justify-content: center; gap: 30px;">
+        {% for card in cards %}
+            <div style="text-align: center;">
+                <img src="{% static 'tarot_cards/' %}{{ card.name|card_image_filename }}" alt="{{ card.name }}" width="150"><br>
+                <p style="margin-top: 8px;">{{ card.name }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2>🔮 คำทำนายประจำวันนี้</h2>
+    <p>{{ horoscope }}</p>
+
+    <br>
+    <a href="/">⬅️ กลับหน้าหลัก</a>
+</body>
+</html>
+
