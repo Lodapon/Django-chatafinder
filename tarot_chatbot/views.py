@@ -6,8 +6,6 @@ import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Create your views here.
-
 TAROT_CARDS = [
     # Major Arcana (22)
     "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
@@ -35,7 +33,6 @@ TAROT_CARDS = [
     "Six of Wands", "Seven of Wands", "Eight of Wands", "Nine of Wands", "Ten of Wands",
     "Page of Wands", "Knight of Wands", "Queen of Wands", "King of Wands"
 ]
-
 
 def homepage(request):
     return render(request, 'tarot_chatbot/homepage.html')
@@ -65,7 +62,6 @@ def extract_cards_from_text(text):
             matches.append(card)
     return matches
 
-
 @csrf_exempt
 def tarot_chat(request):
 
@@ -87,10 +83,6 @@ def tarot_chat(request):
         if user_input:
             chat.append({'sender': 'user', 'text': user_input})
 
-            # ✅ DRAW ONLY IF NOT YET DRAWN
-            # if 'tarot_cards' not in request.session:
-            #     drawn_cards = random.sample(TAROT_CARDS, 10)
-            #     request.session['tarot_cards'] = drawn_cards
             if 'tarot_cards' not in request.session:
                 return render(request, 'tarot_chatbot/select_cards.html', {'card_pool': TAROT_CARDS})
             else:
