@@ -22,9 +22,9 @@ def cards_of_the_day(request):
     if CARDS_CACHE["date"] != today:
         all_cards = list(TarotCard.objects.all())
         if len(all_cards) < 3:
-		    return render(request, 'daily_cards/error.html', {
-		        "message": "ยังไม่มีไพ่ในระบบมากพอสำหรับการสุ่มรายวัน (ต้องมีอย่างน้อย 3 ใบ)"
-		    })
+			return render(request, 'daily_cards/error.html', {
+				"message": "ยังไม่มีไพ่ในระบบมากพอสำหรับการสุ่มรายวัน (ต้องมีอย่างน้อย 3 ใบ)"
+			})
         selected_cards = random.sample(all_cards, 3)
 
         # Get card names for prompt
