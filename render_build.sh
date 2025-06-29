@@ -8,5 +8,8 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 
+# Load tarot cards if not already loaded
+python manage.py shell < chatafinder/tarot_chatbot/load_cards.py
+
 # Collect static files
 python manage.py collectstatic --no-input
