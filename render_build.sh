@@ -9,7 +9,7 @@ python manage.py makemigrations
 python manage.py migrate
 
 # Load tarot cards if not already loaded
-python manage.py shell < tarot_chatbot/load_cards.py
+python manage.py load_tarot_cards
 
 # Collect static files
 python manage.py collectstatic --no-input
